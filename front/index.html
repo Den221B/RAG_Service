@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Chat Assistant</title>
+</head>
+<body>
+  <header class="header">
+    <div class="logo-container">
+      <img src="img/logo.svg" alt="Chat logo" class="logo" id="site-logo" />
+    </div>
+    <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Chat Container -->
+  <main class="chat-container">
+    <div class="chat-messages" id="chat-messages">
+      <!-- Welcome message -->
+      <div class="welcome-message">
+        <div class="welcome-text">
+          How can I help you?<br />
+          I am your personal AI assistant
+        </div>
+      </div>
+      <!-- Chat messages will appear here -->
+    </div>
+
+    <div class="chat-footer"></div>
+
+    <div class="chat-input-container">
+      <textarea id="message" placeholder="Type your message..." rows="1"></textarea>
+      <div class="buttons">
+        <button id="send-button" title="Send message" onclick="sendMessage()">
+          <img src="img/btn/send.svg" alt="Send" />
+        </button>
+        <button class="clear-history" title="Clear chat" id="clear-history">
+          <img src="img/btn/del.svg" alt="Clear" />
+        </button>
+        <button class="help-btn" title="Help">
+          <img src="img/btn/q.svg" alt="Help" />
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer Note -->
+  <footer class="footer-text">
+    <span>This assistant may make mistakes. Please verify any important information.</span>
+  </footer>
+
+  <!-- Clear Chat Confirmation Dialog -->
+  <div id="clear-confirmation" class="confirmation-dialog" style="display: none;">
+    <div class="confirmation-content">
+      <p>Are you sure you want to clear the chat history?</p>
+      <div class="confirmation-buttons">
+        <button id="confirm-clear" class="confirm-btn">Continue</button>
+        <button id="cancel-clear" class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Popup -->
+  <div id="help-popup" class="help-dialog" style="display: none;">
+    <div class="help-content">
+      <h3>Chat Assistant Usage Guide</h3>
+      <div class="help-text">
+        <h4>1. How to start a conversation?</h4>
+        <p>Simply type your question in the chat box, and I’ll try to provide a helpful response right away.</p>
+
+        <h4>2. What can I do?</h4>
+        <p>I am an assistant designed to help you find the right documents or information quickly and accurately. I work only with text and cannot process images, audio, or video.</p>
+
+        <h4>3. Do you save the chat history?</h4>
+        <p>No, chat history is not saved after the session ends. Every new session starts fresh.</p>
+
+        <h4>4. How to get better answers?</h4>
+        <p>Try to be specific and clear in your questions. Providing context helps a lot.<br /><br />
+          ❌ "Fire safety document"<br />
+          ✅ "Find the fire safety requirements for construction sites"
+        </p>
+
+        <h4>5. Are errors possible?</h4>
+        <p>If something seems incorrect, feel free to ask for clarification or request a revision.</p>
+
+        <h4>6. Do you collect personal data?</h4>
+        <p>No, I don’t store or process any personal data. Please avoid sharing confidential information in the chat.</p>
+      </div>
+      <button id="close-help" class="help-close-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts/clear-chat.js"></script>
+  <script src="scripts/chat.js"></script>
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/help-popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+version: "3.8"
+
+services:
+  # --- Retrieval service ---
+  retrieval:
+    build:
+      context: ./retrieval
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: 3.11
+        PORT: 8004
+    container_name: retrieval
+    ports:
+      - "8004:8004"
+    environment:
+      PORT: 8004
+      CUDA_VISIBLE_DEVICES: 0
+      FAISS_INDEX_PATH: /app/vdb/index.faiss
+      METADATA_PATH: /app/vdb/metadata.pkl
+      LOG_DIR: /app/logs
+      DISABLE_COLBERT: "false"
+      # DEVICE: "cpu"
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+  # ---  backend ---
+  rag_app:
+    build:
+      context: ./rag_app
+      dockerfile: Dockerfile
+    container_name: rag_app
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+    depends_on:
+      - retrieval
+      - log_collector
+      
+
+  # --- Nginx frontend ---
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: front
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+    depends_on:
+      - rag_app
+
+  # --- Log collector ---
+  log_collector:
+    build:
+      context: ./log_collector
+      dockerfile: Dockerfile
+    container_name: log_collector
+    ports:
+      - "8003:8003"
+    restart: unless-stopped
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - shared_logs:/app/logs
+
+  # --- Redis queue ---
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # --- Log worker ---
+  log_worker:
+    build:
+      context: ./log_worker
+      dockerfile: Dockerfile
+    container_name: log_worker
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - shared_logs:/app/logs
+
+  # --- LLM ---
+  llm_server:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    container_name: llm_server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./llm:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    command: [
+      "-m", "/models/Qwen2.5-14B-Instruct-Q6_K.gguf",
+      "--host", "0.0.0.0",
+      "--port", "8000",
+      "--n-gpu-layers", "9999",
+      "--ctx-size", "12000",
+      "--parallel", "2",
+      "--cont-batching",
+      "--no-webui",
+      "--prio", "3",
+      "--prio-batch", "3",
+      "--no-slots",
+      "--mlock",
+      "--n-predict", "4096",
+      "--api-key", "api-key"
+    ]
+
+volumes:
+  shared_logs:
